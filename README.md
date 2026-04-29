@@ -1,6 +1,6 @@
 # nalanda-project
 
-Bibliophiles social network where the users are not key rather the discussions around ideas is what matters.
+Bibliophiles social forum where the users are not key rather the discussions around ideas is what matters.
 
 ## Reviving Nalanda
 
