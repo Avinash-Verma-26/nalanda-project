@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 dotenv.config();
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 
 app.use(
@@ -23,12 +23,14 @@ app.get("/api/bookSearch", async (req, res) => {
   const query = ((req.query.q as string) ?? "").toLowerCase() ?? "";
   console.log(query);
   try {
-    const response = await fetch(`${searchURL}${encodeURIComponent(query)}`);
+    const response = await fetch(
+      `${searchURL}${encodeURIComponent(query)}&fields=title,author_name`,
+    );
     const data = await response.json();
     // console.log(data);
 
     res.json(
-      data.docs.map((book: any) => ({
+      (data.docs ?? []).map((book: any) => ({
         id: book.key,
         name: book.title,
         author: book.author_name?.[0] ?? "Unknown",

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Book } from "../types/Book";
 
 const BookSearch = () => {
   const baseAPIUrl = import.meta.env.VITE_API_URL;
+  const bookListCache = useRef(new Map());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchResult, setSearchResult] = useState<Book[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -14,22 +15,33 @@ const BookSearch = () => {
       setSearchResult([]);
       return;
     }
+    const currentCache = bookListCache.current;
     const controller = new AbortController();
-    setIsLoading(true);
-    setSearchResult([]);
-    fetch(`${baseAPIUrl}/bookSearch?q=${encodeURIComponent(searchQuery)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setSearchResult(data);
-        else setSearchResult([]);
-      })
-      .catch((err) => {
-        console.error(err.message);
-        setIsLoading(false);
-      });
-    return () => controller.abort();
+    const { signal } = controller;
+    const timer = setTimeout(() => {
+      if (currentCache.has(searchQuery)) {
+        setSearchResult(currentCache.get(searchQuery));
+      } else {
+        fetch(`${baseAPIUrl}/bookSearch?q=${encodeURIComponent(searchQuery)}`, {
+          signal: signal,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (Array.isArray(data)) {
+              currentCache.set(searchQuery, data);
+              setSearchResult(data);
+            } else setSearchResult([]);
+          })
+          .catch((err) => {
+            console.error(err);
+            // setIsLoading(false);
+          });
+      }
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+      controller.abort("Aborting last call");
+    };
   }, [searchQuery]);
   return (
     <div id="bookSearch" className="flex flex-col gap-1">
@@ -47,7 +59,10 @@ const BookSearch = () => {
         ) : (
           searchResult.map((book) => {
             return (
-              <div key={book.id} className="bookCard flex flex-col gap-0.5">
+              <div
+                key={book.id}
+                className="bookCard flex flex-col gap-0.5 border-2"
+              >
                 <div className="bookName font-bold">{book.name}</div>
                 <div className="authorName">{book.author}</div>
               </div>
