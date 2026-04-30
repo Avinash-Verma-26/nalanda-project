@@ -30,8 +30,10 @@ app.get("/api", (req, res) => {
   res.json({ message: "Successfully hitting the API endpoint" });
 });
 app.get("/api/bookSearch", async (req, res) => {
+  console.log("Method called");
   const searchURL = "https://openlibrary.org/search.json?q=";
   const query = ((req.query.q as string) ?? "").toLowerCase() ?? "";
+  console.log(query);
   try {
     const response = await fetch(`${searchURL}${encodeURIComponent(query)}`);
     const data = await response.json();

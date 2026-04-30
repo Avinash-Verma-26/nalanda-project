@@ -13,6 +13,7 @@ const BookSearch = () => {
       setSearchResult([]);
       return;
     }
+    console.log(searchQuery);
     const controller = new AbortController();
     fetch(`${baseAPIUrl}/bookSearch?q=${encodeURIComponent(searchQuery)}`, {
       signal: controller.signal,
@@ -23,7 +24,7 @@ const BookSearch = () => {
         else setSearchResult([]);
       })
       .catch((err) => {
-        if (err.name !== "AbortError") console.error(err);
+        console.error(err);
       });
     return () => controller.abort();
   }, [searchQuery]);
