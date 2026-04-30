@@ -4,6 +4,7 @@ import cors from "cors";
 dotenv.config();
 
 const PORT = Number(process.env.PORT) || 5000;
+const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY;
 const app = express();
 
 app.use(
@@ -19,22 +20,28 @@ app.get("/api", (req, res) => {
 });
 app.get("/api/bookSearch", async (req, res) => {
   console.log("Method called");
-  const searchURL = "https://openlibrary.org/search.json?q=";
+  const searchURL = "https://www.googleapis.com/books/v1/volumes?q=";
   const query = ((req.query.q as string) ?? "").toLowerCase() ?? "";
+  const startIndex = (req.query.start as string) ?? "0";
+  // console.log(startIndex);
   console.log(query);
   try {
+    const encodedQuery = encodeURIComponent(query);
     const response = await fetch(
-      `${searchURL}${encodeURIComponent(query)}&fields=title,author_name`,
+      `${searchURL}${encodedQuery}&startIndex=${startIndex}&maxResults=20&orderBy=relevance&printType=books&key=${GOOGLE_BOOKS_API_KEY}`,
     );
     const data = await response.json();
-    // console.log(data);
-
+    console.log(data.items[0]);
     res.json(
-      (data.docs ?? []).map((book: any) => ({
-        id: book.key,
-        name: book.title,
-        author: book.author_name?.[0] ?? "Unknown",
-      })),
+      data.items.map((book: any) => {
+        return {
+          id: book.id,
+          imageLink: book.volumeInfo.imageLinks.smallThumbnail ?? "",
+          isbn: book.volumeInfo.industryIdentifiers[0].identifier,
+          title: book.volumeInfo.title,
+          authors: book.volumeInfo.authors,
+        };
+      }),
     );
   } catch (err) {
     console.log(err);

@@ -63,8 +63,14 @@ const BookSearch = () => {
                 key={book.id}
                 className="bookCard flex flex-col gap-0.5 border-2"
               >
-                <div className="bookName font-bold">{book.name}</div>
-                <div className="authorName">{book.author}</div>
+                <img
+                  src={book.imageLink}
+                  alt="book_small_image"
+                  className="bookImage w-10"
+                />
+                <div className="bookTitle font-bold">{book.title}</div>
+                <div className="authorName">{book.authors}</div>
+                <div className="authorName">{book.isbn}</div>
               </div>
             );
           })

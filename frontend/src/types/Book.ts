@@ -1,5 +1,7 @@
 export interface Book {
   id: string;
-  name: string;
-  author: string;
+  title: string;
+  authors: string[];
+  imageLink: string;
+  isbn: string;
 }
