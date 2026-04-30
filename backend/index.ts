@@ -5,18 +5,6 @@ dotenv.config();
 
 const PORT = Number(process.env.PORT) || 3000;
 const app = express();
-const books = [
-  {
-    isbn: "123224321424",
-    name: "Test Book 1",
-    author: "Author 1",
-  },
-  {
-    isbn: "3254325432324",
-    name: "Test Book 2",
-    author: "Author 2",
-  },
-];
 
 app.use(
   cors({
@@ -37,7 +25,7 @@ app.get("/api/bookSearch", async (req, res) => {
   try {
     const response = await fetch(`${searchURL}${encodeURIComponent(query)}`);
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
     res.json(
       data.docs.map((book: any) => ({
@@ -47,8 +35,8 @@ app.get("/api/bookSearch", async (req, res) => {
       })),
     );
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed ot fetch books" });
+    console.log(err);
+    res.status(500).json({ error: "Failed to fetch books" });
   }
 });
 
