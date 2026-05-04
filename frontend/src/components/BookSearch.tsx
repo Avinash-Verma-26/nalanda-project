@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Book } from "../types/Book";
+import BookCard from "./BookCard";
 
 const BookSearch = () => {
   const baseAPIUrl = import.meta.env.VITE_API_URL;
@@ -22,9 +23,12 @@ const BookSearch = () => {
       if (currentCache.has(searchQuery)) {
         setSearchResult(currentCache.get(searchQuery));
       } else {
-        fetch(`${baseAPIUrl}/bookSearch?q=${encodeURIComponent(searchQuery)}`, {
-          signal: signal,
-        })
+        fetch(
+          `${baseAPIUrl}/bookSearch/byTitle?q=${encodeURIComponent(searchQuery)}`,
+          {
+            signal: signal,
+          },
+        )
           .then((res) => res.json())
           .then((data) => {
             if (Array.isArray(data)) {
@@ -53,28 +57,10 @@ const BookSearch = () => {
         placeholder="Enter book/author name (at least 3 characters)"
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSearch(e)}
       />
-      <div id="searchResults" className="flex flex-col gap-0.5">
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          searchResult.map((book) => {
-            return (
-              <div
-                key={book.id}
-                className="bookCard flex flex-col gap-0.5 border-2"
-              >
-                <img
-                  src={book.imageLink}
-                  alt="book_small_image"
-                  className="bookImage w-10"
-                />
-                <div className="bookTitle font-bold">{book.title}</div>
-                <div className="authorName">{book.authors}</div>
-                <div className="authorName">{book.isbn}</div>
-              </div>
-            );
-          })
-        )}
+      <div id="searchResults" className="grid grid-cols-4 gap-5 w-150">
+        {searchResult.map((book) => {
+          return <BookCard key={book.id} book={book} />;
+        })}
       </div>
     </div>
   );
